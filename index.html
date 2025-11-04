@@ -1,0 +1,1013 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Absensi Kelas</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: white;
+        min-height: 100vh;
+        padding: 0;
+        margin: 0;
+      }
+
+      .container {
+        max-width: 800px;
+        width: 100%;
+        min-height: 100vh;
+        background: white;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        margin: 0 auto;
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+      }
+
+      @media (max-width: 768px) {
+        .container {
+          max-width: 100%;
+          box-shadow: none;
+        }
+      }
+
+      .header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 25px 20px;
+        text-align: center;
+      }
+
+      .header h1 {
+        font-size: 24px;
+        margin-bottom: 8px;
+      }
+
+      .date-info {
+        font-size: 13px;
+        opacity: 0.9;
+      }
+
+      .content {
+        padding: 20px;
+        flex: 1;
+        overflow-y: auto;
+        padding-bottom: 200px;
+        max-width: 800px;
+        margin: 0 auto;
+        width: 100%;
+      }
+
+      @media (max-width: 768px) {
+        .content {
+          padding: 15px;
+        }
+      }
+
+      .date-selector {
+        background: #f8f9fa;
+        padding: 15px;
+        border-radius: 10px;
+        margin-bottom: 20px;
+      }
+
+      .date-selector label {
+        display: block;
+        font-weight: 600;
+        margin-bottom: 8px;
+        color: #333;
+        font-size: 14px;
+      }
+
+      .date-selector input,
+      .date-selector select {
+        width: 100%;
+        padding: 12px;
+        border: 2px solid #e0e0e0;
+        border-radius: 8px;
+        font-size: 16px;
+        transition: border 0.3s;
+        margin-bottom: 10px;
+      }
+
+      .date-selector input:focus,
+      .date-selector select:focus {
+        outline: none;
+        border-color: #667eea;
+      }
+
+      .sync-status {
+        background: #d1fae5;
+        border: 2px solid #10b981;
+        border-radius: 8px;
+        padding: 10px;
+        margin-bottom: 15px;
+        text-align: center;
+        font-size: 13px;
+        color: #065f46;
+        font-weight: 600;
+      }
+
+      .student-card {
+        background: white;
+        border: 2px solid #e0e0e0;
+        border-radius: 12px;
+        padding: 15px;
+        margin-bottom: 15px;
+        transition: all 0.3s;
+      }
+
+      .student-card:hover {
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      }
+
+      .student-info {
+        margin-bottom: 12px;
+      }
+
+      .student-name {
+        font-size: 17px;
+        font-weight: 600;
+        color: #333;
+      }
+
+      .student-nis {
+        font-size: 12px;
+        color: #666;
+        margin-top: 2px;
+      }
+
+      .status-buttons {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+      }
+
+      .status-btn {
+        padding: 12px;
+        border: 2px solid #e0e0e0;
+        border-radius: 8px;
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s;
+        background: white;
+        color: #666;
+      }
+
+      .status-btn:active {
+        transform: scale(0.95);
+      }
+
+      .status-btn.active {
+        color: white;
+        border-color: transparent;
+      }
+
+      .status-btn.hadir.active {
+        background: #10b981;
+      }
+
+      .status-btn.izin.active {
+        background: #3b82f6;
+      }
+
+      .status-btn.sakit.active {
+        background: #f59e0b;
+      }
+
+      .status-btn.alpa.active {
+        background: #ef4444;
+      }
+
+      .submit-section {
+        position: fixed;
+        bottom: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        max-width: 800px;
+        width: 100%;
+        padding: 20px;
+        background: white;
+        border-top: 2px solid #e0e0e0;
+        box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.1);
+        box-sizing: border-box;
+      }
+
+      @media (max-width: 768px) {
+        .submit-section {
+          left: 0;
+          transform: none;
+          max-width: 100%;
+        }
+      }
+
+      @media (min-width: 769px) {
+        .submit-section {
+          padding: 20px 40px;
+        }
+      }
+
+      .submit-btn {
+        width: 100%;
+        max-width: 100%;
+        padding: 15px;
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        color: white;
+        border: none;
+        border-radius: 10px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        margin-bottom: 10px;
+        transition: transform 0.2s;
+      }
+
+      .submit-btn:disabled {
+        background: #ccc;
+        cursor: not-allowed;
+      }
+
+      .submit-btn:active:not(:disabled) {
+        transform: scale(0.98);
+      }
+
+      .submit-btn:hover:not(:disabled) {
+        box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+      }
+
+      .nav-btn {
+        width: 100%;
+        max-width: 100%;
+        padding: 15px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        border-radius: 10px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: transform 0.2s;
+      }
+
+      .nav-btn:active {
+        transform: scale(0.98);
+      }
+
+      .nav-btn:hover {
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+      }
+
+      .student-list {
+        padding: 20px;
+        padding-bottom: 100px;
+        max-width: 800px;
+        margin: 0 auto;
+        width: 100%;
+      }
+
+      @media (max-width: 768px) {
+        .student-list {
+          padding: 15px;
+          padding-bottom: 100px;
+        }
+      }
+
+      .student-list-item {
+        background: white;
+        border: 2px solid #e0e0e0;
+        border-radius: 12px;
+        padding: 15px;
+        margin-bottom: 12px;
+        cursor: pointer;
+        transition: all 0.3s;
+      }
+
+      .student-list-item:active {
+        transform: scale(0.98);
+        background: #f8f9fa;
+      }
+
+      .stats {
+        display: flex;
+        gap: 10px;
+        margin-top: 8px;
+        font-size: 12px;
+        font-weight: 600;
+        flex-wrap: wrap;
+      }
+
+      .stat-hadir {
+        color: #10b981;
+      }
+      .stat-izin {
+        color: #3b82f6;
+      }
+      .stat-sakit {
+        color: #f59e0b;
+      }
+      .stat-alpa {
+        color: #ef4444;
+      }
+
+      .detail-page {
+        padding: 20px;
+        padding-bottom: 100px;
+        max-width: 800px;
+        margin: 0 auto;
+        width: 100%;
+      }
+
+      @media (max-width: 768px) {
+        .detail-page {
+          padding: 15px;
+          padding-bottom: 100px;
+        }
+      }
+
+      .back-btn {
+        background: #f0f0f0;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 8px;
+        cursor: pointer;
+        margin-bottom: 20px;
+        font-weight: 600;
+        font-size: 14px;
+      }
+
+      .back-btn:active {
+        background: #e0e0e0;
+      }
+
+      .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+        margin-bottom: 20px;
+      }
+
+      .stat-card {
+        padding: 20px;
+        border-radius: 12px;
+        text-align: center;
+        color: white;
+      }
+
+      .stat-card.hadir {
+        background: #10b981;
+      }
+      .stat-card.izin {
+        background: #3b82f6;
+      }
+      .stat-card.sakit {
+        background: #f59e0b;
+      }
+      .stat-card.alpa {
+        background: #ef4444;
+      }
+
+      .stat-number {
+        font-size: 28px;
+        font-weight: bold;
+      }
+
+      .stat-label {
+        font-size: 13px;
+        margin-top: 5px;
+      }
+
+      .history-item {
+        background: #f8f9fa;
+        padding: 12px;
+        border-radius: 10px;
+        margin-bottom: 10px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .badge {
+        padding: 5px 12px;
+        border-radius: 20px;
+        font-size: 11px;
+        font-weight: 600;
+        color: white;
+      }
+
+      .badge.hadir {
+        background: #10b981;
+      }
+      .badge.izin {
+        background: #3b82f6;
+      }
+      .badge.sakit {
+        background: #f59e0b;
+      }
+      .badge.alpa {
+        background: #ef4444;
+      }
+
+      .hidden {
+        display: none;
+      }
+
+      .scroll-indicator {
+        text-align: center;
+        padding: 15px;
+        color: #667eea;
+        font-size: 13px;
+        font-weight: 600;
+        animation: bounce 2s infinite;
+      }
+
+      @keyframes bounce {
+        0%,
+        20%,
+        50%,
+        80%,
+        100% {
+          transform: translateY(0);
+        }
+        40% {
+          transform: translateY(-8px);
+        }
+        60% {
+          transform: translateY(-4px);
+        }
+      }
+
+      .section-title {
+        font-size: 16px;
+        font-weight: 600;
+        margin-bottom: 12px;
+        color: #333;
+      }
+
+      .filter-section {
+        background: #f8f9fa;
+        padding: 15px;
+        border-radius: 10px;
+        margin-bottom: 20px;
+      }
+
+      .filter-label {
+        display: block;
+        font-weight: 600;
+        margin-bottom: 8px;
+        color: #333;
+        font-size: 14px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <!-- HALAMAN ABSENSI -->
+      <div id="attendancePage">
+        <div class="header">
+          <h1>📋 Absensi Kelas</h1>
+          <div class="date-info" id="currentDate"></div>
+        </div>
+
+        <div class="content" id="attendanceContent">
+          <div id="syncStatus" class="sync-status">
+            ✅ Tersinkronisasi dengan Google Sheets
+          </div>
+
+          <div class="date-selector">
+            <label>📅 Pilih Tanggal:</label>
+            <input type="date" id="dateInput" />
+          </div>
+
+          <div id="studentsList"></div>
+
+          <div class="scroll-indicator">⬇️ Scroll ke bawah untuk submit</div>
+        </div>
+
+        <div class="submit-section">
+          <button
+            class="submit-btn"
+            id="submitBtn"
+            onclick="submitAttendance()"
+          >
+            ✅ Submit ke Google Sheets
+          </button>
+          <button class="nav-btn" onclick="showStudentList()">
+            👥 Lihat Daftar Siswa
+          </button>
+        </div>
+      </div>
+
+      <!-- HALAMAN DAFTAR SISWA -->
+      <div id="studentListPage" class="hidden">
+        <div class="header">
+          <h1>👥 Daftar Siswa</h1>
+          <div class="date-info">Total: 32 Siswa</div>
+        </div>
+
+        <div class="student-list">
+          <div class="filter-section">
+            <label class="filter-label">🗓️ Filter Bulan:</label>
+            <select id="monthFilter" onchange="filterByMonth()">
+              <option value="all">Semua Bulan</option>
+            </select>
+          </div>
+
+          <div id="studentListContent"></div>
+        </div>
+
+        <div class="submit-section">
+          <button class="nav-btn" onclick="showAttendance()">
+            📋 Kembali ke Absensi
+          </button>
+        </div>
+      </div>
+
+      <!-- HALAMAN DETAIL SISWA -->
+      <div id="detailPage" class="hidden">
+        <div class="header">
+          <h1 id="detailName">Detail Siswa</h1>
+          <div class="date-info" id="detailNis"></div>
+        </div>
+        <div class="detail-page">
+          <button class="back-btn" onclick="showStudentList()">
+            ⬅️ Kembali
+          </button>
+
+          <div class="filter-section">
+            <label class="filter-label">🗓️ Filter Bulan:</label>
+            <select id="detailMonthFilter" onchange="updateDetailView()">
+              <option value="all">Semua Bulan</option>
+            </select>
+          </div>
+
+          <div class="section-title">📊 Statistik Kehadiran</div>
+          <div class="stats-grid" id="statsGrid"></div>
+
+          <div class="section-title">📜 Riwayat Ketidakhadiran</div>
+          <div id="historyContent"></div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // ========== KONFIGURASI ==========
+      // ISI URL GOOGLE APPS SCRIPT DI SINI:
+      const SCRIPT_URL =
+        "https://script.google.com/macros/s/AKfycbwI5uHO9tG_DlVvj08N39pJTcQOWl2VglrucNtnbp4uhK6lUavzKmxH35UTcItKpAMJ/exec";
+      // ==================================
+
+      const STUDENTS = [
+        { id: 1, name: "ARIP SATRIANTO" },
+        { id: 2, name: "ARISTA VANIA KHAFIZHA" },
+        { id: 3, name: "ARTHILA VIRDA ARLITA" },
+        { id: 4, name: "ATHA YAN PUTRA" },
+        { id: 5, name: "BENI AKHDAN ATHAYA" },
+        { id: 6, name: "DAVI PUTRA RACHMANDARI" },
+        { id: 7, name: "DEWA AMRTA" },
+        { id: 8, name: "DICO WIJAYA" },
+        { id: 9, name: "FALIQ DIO ERYAN PRATAMA" },
+        { id: 10, name: "M. RASYA RAMADHAN" },
+        { id: 11, name: "M. RAYYAN RIMBA PRATAMA" },
+        { id: 12, name: "M. RUFIE IANNULLAH" },
+        { id: 13, name: "M. ANDIKA PRADITYA" },
+        { id: 14, name: "M. SYAMIL IHSAN GUMAY" },
+        { id: 15, name: "MELAN OKTAVIA" },
+        { id: 16, name: "MERLIN SARTIKA SILABAN" },
+        { id: 17, name: "MEYSA PUTRI AZIZAH" },
+        { id: 18, name: "MUHAMAD AZIMA RIZKI WINDANI" },
+        { id: 19, name: "MUHAMAD YUSUF" },
+        { id: 20, name: "MUHAMAT AHMAT TULLAH" },
+        { id: 21, name: "MUHAMMAD AN NADHIF AL ISYARAFI" },
+        { id: 22, name: "MUHAMMAD FIRDAUS" },
+        { id: 23, name: "MUHAMMAD REIHAN" },
+        { id: 24, name: "MUHAMMAD SURYANSYAH" },
+        { id: 25, name: "RANGGA JAYA SAPUTRA" },
+        { id: 26, name: "RAVA VARIO MARSELINO SETIAWAN" },
+        { id: 27, name: "RICKI SETIAWAN" },
+        { id: 28, name: "RIDO PUTRA PARDAMEAN" },
+        { id: 29, name: "SEKAR NOVA ODELIA" },
+        { id: 30, name: "TEGAR HARDINATHA" },
+        { id: 31, name: "ZASQIA ASMARA SITA" },
+        { id: 32, name: "ZIVANA ANDRIAN AFRIANTI" },
+      ];
+
+      const MONTHS = [
+        "Januari",
+        "Februari",
+        "Maret",
+        "April",
+        "Mei",
+        "Juni",
+        "Juli",
+        "Agustus",
+        "September",
+        "Oktober",
+        "November",
+        "Desember",
+      ];
+
+      const DAYS = [
+        "Minggu",
+        "Senin",
+        "Selasa",
+        "Rabu",
+        "Kamis",
+        "Jumat",
+        "Sabtu",
+      ];
+
+      let attendance = {};
+      let currentDate = new Date();
+      let selectedStudent = null;
+      let selectedMonth = "all";
+      let detailSelectedMonth = "all";
+
+      function loadData() {
+        try {
+          const stored = localStorage.getItem("attendanceData");
+          if (stored) {
+            attendance = JSON.parse(stored);
+          }
+          loadFromGoogleSheets();
+        } catch (e) {
+          console.error("Error loading data:", e);
+        }
+      }
+
+      function saveData() {
+        try {
+          localStorage.setItem("attendanceData", JSON.stringify(attendance));
+        } catch (e) {
+          console.error("Error saving data:", e);
+        }
+      }
+
+      async function loadFromGoogleSheets() {
+        if (!SCRIPT_URL || SCRIPT_URL.includes("YOUR_SCRIPT_ID")) return;
+
+        try {
+          const response = await fetch(SCRIPT_URL + "?action=load");
+          const data = await response.json();
+
+          if (data.success && data.data) {
+            attendance = data.data;
+            saveData();
+            if (
+              !document
+                .getElementById("attendancePage")
+                .classList.contains("hidden")
+            ) {
+              renderStudentsList();
+            }
+          }
+        } catch (e) {
+          console.error("Error loading from Google Sheets:", e);
+        }
+      }
+
+      async function saveToGoogleSheets(dateKey, attendanceData) {
+        if (!SCRIPT_URL || SCRIPT_URL.includes("YOUR_SCRIPT_ID")) {
+          alert("❌ URL Google Apps Script belum dikonfigurasi di kode!");
+          return false;
+        }
+
+        try {
+          const submitBtn = document.getElementById("submitBtn");
+          submitBtn.disabled = true;
+          submitBtn.textContent = "⏳ Menyimpan...";
+
+          await fetch(SCRIPT_URL, {
+            method: "POST",
+            mode: "no-cors",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              action: "save",
+              date: dateKey,
+              attendance: attendanceData,
+            }),
+          });
+
+          saveData();
+          submitBtn.disabled = false;
+          submitBtn.textContent = "✅ Submit ke Google Sheets";
+          return true;
+        } catch (e) {
+          console.error("Error saving to Google Sheets:", e);
+          const submitBtn = document.getElementById("submitBtn");
+          submitBtn.disabled = false;
+          submitBtn.textContent = "✅ Submit ke Google Sheets";
+          return false;
+        }
+      }
+
+      function formatDate(date) {
+        const day = DAYS[date.getDay()];
+        const d = date.getDate();
+        const month = MONTHS[date.getMonth()];
+        const year = date.getFullYear();
+        return `${day}, ${d} ${month} ${year}`;
+      }
+
+      function getDateKey(date) {
+        return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(
+          2,
+          "0"
+        )}-${String(date.getDate()).padStart(2, "0")}`;
+      }
+
+      function initializeAttendance() {
+        const dateKey = getDateKey(currentDate);
+        if (!attendance[dateKey]) {
+          attendance[dateKey] = {};
+          STUDENTS.forEach((student) => {
+            attendance[dateKey][student.id] = "hadir";
+          });
+        }
+      }
+
+      function updateStatus(studentId, status) {
+        const dateKey = getDateKey(currentDate);
+        if (!attendance[dateKey]) {
+          attendance[dateKey] = {};
+        }
+        attendance[dateKey][studentId] = status;
+        renderStudentsList();
+        saveData();
+      }
+
+      function renderStudentsList() {
+        const dateKey = getDateKey(currentDate);
+        const container = document.getElementById("studentsList");
+
+        container.innerHTML = STUDENTS.map((student) => {
+          const status = attendance[dateKey]?.[student.id] || "hadir";
+
+          return `
+                    <div class="student-card">
+                        <div class="student-info">
+                            <div class="student-name">${student.name}</div>
+                            <div class="student-nis">NIS: ${student.nis}</div>
+                        </div>
+                        <div class="status-buttons">
+                            <button class="status-btn hadir ${
+                              status === "hadir" ? "active" : ""
+                            }" 
+                                    onclick="updateStatus(${
+                                      student.id
+                                    }, 'hadir')">
+                                ✓ Hadir
+                            </button>
+                            <button class="status-btn izin ${
+                              status === "izin" ? "active" : ""
+                            }" 
+                                    onclick="updateStatus(${
+                                      student.id
+                                    }, 'izin')">
+                                📝 Izin
+                            </button>
+                            <button class="status-btn sakit ${
+                              status === "sakit" ? "active" : ""
+                            }" 
+                                    onclick="updateStatus(${
+                                      student.id
+                                    }, 'sakit')">
+                                🤒 Sakit
+                            </button>
+                            <button class="status-btn alpa ${
+                              status === "alpa" ? "active" : ""
+                            }" 
+                                    onclick="updateStatus(${
+                                      student.id
+                                    }, 'alpa')">
+                                ✗ Alpa
+                            </button>
+                        </div>
+                    </div>
+                `;
+        }).join("");
+      }
+
+      async function submitAttendance() {
+        const dateKey = getDateKey(currentDate);
+        const attendanceData = attendance[dateKey];
+
+        const success = await saveToGoogleSheets(dateKey, attendanceData);
+
+        if (success !== false) {
+          alert(
+            `✅ Absensi tanggal ${dateKey} berhasil disimpan ke Google Sheets!`
+          );
+        } else {
+          alert(
+            `⚠️ Data tersimpan lokal, tapi gagal tersinkronisasi ke Google Sheets. Cek koneksi internet Anda.`
+          );
+        }
+      }
+
+      function getStudentStats(studentId, monthFilter = "all") {
+        const stats = { hadir: 0, izin: 0, sakit: 0, alpa: 0, total: 0 };
+        Object.keys(attendance).forEach((dateKey) => {
+          if (monthFilter !== "all") {
+            const dateMonth = dateKey.substring(0, 7);
+            if (dateMonth !== monthFilter) return;
+          }
+
+          if (attendance[dateKey][studentId]) {
+            stats[attendance[dateKey][studentId]]++;
+            stats.total++;
+          }
+        });
+        return stats;
+      }
+
+      function populateMonthFilters() {
+        const monthsSet = new Set();
+        Object.keys(attendance).forEach((dateKey) => {
+          monthsSet.add(dateKey.substring(0, 7));
+        });
+
+        const months = Array.from(monthsSet).sort().reverse();
+
+        const monthFilterHTML = `
+                <option value="all">Semua Bulan</option>
+                ${months
+                  .map((m) => {
+                    const [year, month] = m.split("-");
+                    return `<option value="${m}">${
+                      MONTHS[parseInt(month) - 1]
+                    } ${year}</option>`;
+                  })
+                  .join("")}
+            `;
+
+        document.getElementById("monthFilter").innerHTML = monthFilterHTML;
+        document.getElementById("detailMonthFilter").innerHTML =
+          monthFilterHTML;
+      }
+
+      function filterByMonth() {
+        selectedMonth = document.getElementById("monthFilter").value;
+        renderStudentList();
+      }
+
+      function renderStudentList() {
+        const container = document.getElementById("studentListContent");
+
+        container.innerHTML = STUDENTS.map((student) => {
+          const stats = getStudentStats(student.id, selectedMonth);
+
+          return `
+                    <div class="student-list-item" onclick="showDetail(${student.id})">
+                        <div class="student-name">${student.name}</div>
+                        <div class="student-nis">NIS: ${student.nis}</div>
+                        <div class="stats">
+                            <span class="stat-hadir">H: ${stats.hadir}</span>
+                            <span class="stat-izin">I: ${stats.izin}</span>
+                            <span class="stat-sakit">S: ${stats.sakit}</span>
+                            <span class="stat-alpa">A: ${stats.alpa}</span>
+                            <span style="color: #666;">Total: ${stats.total}</span>
+                        </div>
+                    </div>
+                `;
+        }).join("");
+      }
+
+      function updateDetailView() {
+        detailSelectedMonth =
+          document.getElementById("detailMonthFilter").value;
+        if (selectedStudent) {
+          renderDetailPage(selectedStudent.id);
+        }
+      }
+
+      function renderDetailPage(studentId) {
+        const stats = getStudentStats(studentId, detailSelectedMonth);
+
+        document.getElementById("statsGrid").innerHTML = `
+                <div class="stat-card hadir">
+                    <div class="stat-number">${stats.hadir}</div>
+                    <div class="stat-label">Hadir</div>
+                </div>
+                <div class="stat-card izin">
+                    <div class="stat-number">${stats.izin}</div>
+                    <div class="stat-label">Izin</div>
+                </div>
+                <div class="stat-card sakit">
+                    <div class="stat-number">${stats.sakit}</div>
+                    <div class="stat-label">Sakit</div>
+                </div>
+                <div class="stat-card alpa">
+                    <div class="stat-number">${stats.alpa}</div>
+                    <div class="stat-label">Alpa</div>
+                </div>
+            `;
+
+        const history = Object.keys(attendance)
+          .filter((dateKey) => {
+            if (detailSelectedMonth !== "all") {
+              const dateMonth = dateKey.substring(0, 7);
+              if (dateMonth !== detailSelectedMonth) return false;
+            }
+
+            const status = attendance[dateKey][studentId];
+            return status && status !== "hadir";
+          })
+          .sort((a, b) => b.localeCompare(a))
+          .slice(0, 50);
+
+        if (history.length === 0) {
+          document.getElementById("historyContent").innerHTML =
+            '<p style="text-align: center; color: #666; padding: 20px;">Tidak ada catatan ketidakhadiran (Izin/Sakit/Alpa)</p>';
+        } else {
+          document.getElementById("historyContent").innerHTML = history
+            .map((dateKey) => {
+              const status = attendance[dateKey][studentId];
+              const date = new Date(dateKey + "T00:00:00");
+
+              return `
+                        <div class="history-item">
+                            <div>
+                                <div style="font-weight: 600; font-size: 14px;">${formatDate(
+                                  date
+                                )}</div>
+                                <div style="font-size: 11px; color: #666;">${dateKey}</div>
+                            </div>
+                            <span class="badge ${status}">${status.toUpperCase()}</span>
+                        </div>
+                    `;
+            })
+            .join("");
+        }
+      }
+
+      function showDetail(studentId) {
+        selectedStudent = STUDENTS.find((s) => s.id === studentId);
+
+        document.getElementById("detailName").textContent =
+          selectedStudent.name;
+        document.getElementById(
+          "detailNis"
+        ).textContent = `NIS: ${selectedStudent.nis}`;
+
+        populateMonthFilters();
+        document.getElementById("detailMonthFilter").value = "all";
+        detailSelectedMonth = "all";
+
+        renderDetailPage(studentId);
+        showPage("detailPage");
+      }
+
+      function showPage(pageId) {
+        document.getElementById("attendancePage").classList.add("hidden");
+        document.getElementById("studentListPage").classList.add("hidden");
+        document.getElementById("detailPage").classList.add("hidden");
+        document.getElementById(pageId).classList.remove("hidden");
+      }
+
+      function showAttendance() {
+        renderStudentsList();
+        showPage("attendancePage");
+      }
+
+      function showStudentList() {
+        populateMonthFilters();
+        document.getElementById("monthFilter").value = "all";
+        selectedMonth = "all";
+        renderStudentList();
+        showPage("studentListPage");
+      }
+
+      function init() {
+        loadData();
+
+        const dateInput = document.getElementById("dateInput");
+        dateInput.value = getDateKey(currentDate);
+        document.getElementById("currentDate").textContent =
+          formatDate(currentDate);
+
+        dateInput.addEventListener("change", function () {
+          currentDate = new Date(this.value + "T00:00:00");
+          document.getElementById("currentDate").textContent =
+            formatDate(currentDate);
+          initializeAttendance();
+          renderStudentsList();
+        });
+
+        initializeAttendance();
+        renderStudentsList();
+      }
+
+      window.onload = init;
+    </script>
+  </body>
+</html>
